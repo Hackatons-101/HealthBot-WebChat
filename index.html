@@ -31,7 +31,7 @@
                 overflow: hidden;
             }
         </style>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 
     </head>
     <body>
@@ -119,7 +119,21 @@
                 domain: params['domain'],
                 webSocket: params['webSocket'] && params['webSocket'] === "true" // defaults to true
             });
-		
+
+            window.onload = function () {
+                if(params['lang'] && params['lang'] == "heb") {
+                    var css = document.createElement("style");
+                    css.type = "text/css";
+                    css.innerHTML = ".wc-message-content { direction: rtl!important; } .wc-shellinput { direction: rtl!important; }";
+                    document.body.appendChild(css);
+                    var inputBox = document.getElementsByClassName("wc-shellinput");
+                    if (inputBox) {
+                        inputBox[0].setAttribute("placeholder", "הקלד/י את הודעתך...");
+                    }
+                }
+            }
+
+
             BotChat.App({
                 botConnection: botConnection,
                 user: user,
