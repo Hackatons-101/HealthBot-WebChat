@@ -262,7 +262,7 @@
 /* cards */
 
     .wc-card {
-
+        max-width: 100%;
         background-color: $c01;
 
         .non-adaptive-content {
@@ -275,6 +275,8 @@
             min-height: 32px;
             width: 100%;
             padding: 0 16px;
+            overflow: auto !important;
+            white-space: normal !important;
         }
 
         button:hover {
