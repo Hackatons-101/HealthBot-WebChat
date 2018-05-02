@@ -45,11 +45,21 @@
                 document.write('<scr'+'ipt src="CognitiveServices.js"></sc'+'ript>');
             }
         </script>
+        <script src="//wzrd.in/standalone/uuid%2Fv4@latest"></script>
         <script>
             var params = BotChat.queryParams(location.search);
-
+            var userid = params['userid'];
+            if (!userid && localStorage) {
+                var userid = localStorage.getItem("userid");
+            }
+            if (!userid) {
+                userid = uuidv4();
+                if (localStorage) {
+                    localStorage.setItem("userid", userid);
+                }
+            }
             var user = {
-                id: params['userid'] || 'userid',
+                id: userid,
                 name: params["username"] || 'You'
                 };
             
