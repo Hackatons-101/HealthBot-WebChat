@@ -1,6 +1,17 @@
 import { Speech, Func, Action } from '../SpeechModule'
 import * as konsole from '../Konsole';
 import * as CognitiveSpeech from 'microsoft-speech-browser-sdk/Speech.Browser.Sdk'
+import updateIn from 'simple-update-in';
+
+export interface ISpeechContextDgiGroup {
+    Type: string;
+    Hints?: { ReferenceGrammar: string };
+    Items?: { Text: string }[];
+}
+
+export interface ISpeechContext {
+    dgi: { Groups: ISpeechContextDgiGroup[] };
+}
 
 // Extending the default definition with browser specific definitions for backward compatibility
 interface INavigatorUserMedia extends NavigatorUserMedia {
@@ -27,6 +38,7 @@ export class SpeechRecognizer implements Speech.ISpeechRecognizer {
     public referenceGrammarId: string;
 
     private actualRecognizer: any = null;
+    private grammars: string[] = null;
     private properties: ICognitiveServicesSpeechRecognizerProperties;
 
     constructor(properties: ICognitiveServicesSpeechRecognizerProperties = {}) {
@@ -82,6 +94,10 @@ export class SpeechRecognizer implements Speech.ISpeechRecognizer {
     public warmup() {
     }
 
+    public setGrammars(grammars: string[]) {
+        this.grammars = grammars;
+    }
+
     public async startRecognizing() {
         if (!this.actualRecognizer) {
             this.log('ERROR: no recognizer?');
@@ -131,21 +147,23 @@ export class SpeechRecognizer implements Speech.ISpeechRecognizer {
             }
         }
 
-        let speechContext = null;
+        let speechContext: ISpeechContext;
+
         if (this.referenceGrammarId) {
-            speechContext = JSON.stringify({
-                dgi: {
-                    Groups: [
-                        {
-                            Type: "Generic",
-                            Hints: { ReferenceGrammar: this.referenceGrammarId }
-                        }
-                    ]
-                }
-            });
+            speechContext = updateIn(speechContext, ['dgi', 'Groups'], (groups: any[] = []) => [...groups, {
+                Type: 'Generic',
+                Hints: { ReferenceGrammar: this.referenceGrammarId }
+            }]);
         }
 
-        return this.actualRecognizer.Recognize(eventhandler, speechContext);
+        if (this.grammars) {
+            speechContext = updateIn(speechContext, ['dgi', 'Groups'], (groups: any[] = []) => [...groups, {
+                Type: 'Generic',
+                Items: this.grammars.map(grammar => ({ Text: grammar }))
+            }]);
+        }
+
+        return this.actualRecognizer.Recognize(eventhandler, speechContext && JSON.stringify(speechContext));
     }
 
     public speechIsAvailable(){

@@ -446,6 +446,14 @@ var commands_map: CommandValuesMap = {
             sendActivity(conversationId, server_content.si_card);
         }
     },
+    "oauth": {
+        client: function () {
+            return document.querySelectorAll('button')[0].textContent == "Signin";
+        },
+        server: function (conversationId, sendActivity) {
+            sendActivity(conversationId, server_content.oauth_card);
+        }
+    },
     "suggested-actions": {
         client: function () {
             var ul_object = document.querySelectorAll('ul')[0];
@@ -691,7 +699,6 @@ var commands_map: CommandValuesMap = {
                 .wait(1000);
         },
         client: function () {
-            debugger;
             return (((document.querySelector('.wc-shellinput') as HTMLInputElement).placeholder === 'Listening...'));
         }
     },
@@ -715,6 +722,21 @@ var commands_map: CommandValuesMap = {
         },
         client: function () {
             return (((document.querySelector('.wc-shellinput') as HTMLInputElement).placeholder === 'Type your message...'));
+        }
+    },
+    "speech listen-for": {
+        do: function (nightmare) {
+            nightmare.click('.wc-mic').wait(1000);
+        },
+        client: function () {
+            return JSON.stringify(window['debugSpeechRecognizer'].grammars) === JSON.stringify(['San Francisco', 'Seattle']);
+        },
+        server: function (res, sendActivity, json) {
+            sendActivity(res, {
+                type: 'message',
+                text: 'Where do you live?',
+                listenFor: ['San Francisco', 'Seattle']
+            } as any);
         }
     },
     "focus on type": {

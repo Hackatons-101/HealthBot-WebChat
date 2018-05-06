@@ -5,8 +5,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.13.1] - 2018-05-01
+### Changed
+- Fix [#963](https://github.com/Microsoft/BotFramework-WebChat/issues/963) not to send empty `dgi.Groups` to Cognitive Services, in [#965](https://github.com/Microsoft/BotFramework-WebChat/pull/965)
+- Fix [#964](https://github.com/Microsoft/BotFramework-WebChat/issues/964) to include `.d.ts` in `tsconfig.json` instead of `<reference>`, in [#966](https://github.com/Microsoft/BotFramework-WebChat/pull/966)
+
+## [0.13.0] - 2018-04-26
+### Added
+- Support of `OAuthCard`, in [#954](https://github.com/Microsoft/BotFramework-WebChat/pull/954)
+### Changed
+- Updated [`botframework-directlinejs@0.9.15`](https://www.npmjs.com/package/botframework-directlinejs), in [#953](https://github.com/Microsoft/BotFramework-WebChat/pull/953)
+
+## [0.12.1] - 2018-04-16
+### Added
+- Add `listenFor` speech recognizer hint for both Cognitive Services and Web Speech API
+
 ### Changed
 - Fix [#870](https://github.com/Microsoft/BotFramework-WebChat/issues/870) not to show empty bubble, in [#917](https://github.com/Microsoft/BotFramework-WebChat/pull/917)
+- Fix [#924](https://github.com/Microsoft/BotFramework-WebChat/issues/924) not showing upload button by default, in [#938](https://github.com/Microsoft/BotFramework-WebChat/pull/938)
 
 ## [0.12.0] - 2018-03-21
 ### Added

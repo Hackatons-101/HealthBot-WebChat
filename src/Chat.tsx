@@ -86,7 +86,7 @@ export class Chat extends React.Component<ChatProps, {}> {
             this.store.dispatch<ChatActions>({ type: 'Set_Chat_Title', chatTitle });
         }
 
-        this.store.dispatch<ChatActions>({ type: 'Toggle_Upload_Button', showUploadButton: props.showUploadButton });
+        this.store.dispatch<ChatActions>({ type: 'Toggle_Upload_Button', showUploadButton: props.showUploadButton !== false });
 
         if (props.sendTyping) {
             this.store.dispatch<ChatActions>({ type: 'Set_Send_Typing', sendTyping: props.sendTyping });
@@ -323,8 +323,21 @@ export const doCardAction = (
         case "playVideo":
         case "showImage":
         case "downloadFile":
-        case "signin":
             window.open(text);
+            break;
+        case "signin":
+            let loginWindow =  window.open();
+            if (botConnection.getSessionId)  {
+                botConnection.getSessionId().subscribe(sessionId => {
+                    konsole.log("received sessionId: " + sessionId);
+                    loginWindow.location.href = text + encodeURIComponent('&code_challenge=' + sessionId);
+                }, error => {
+                    konsole.log("failed to get sessionId", error);
+                });
+            }
+            else {
+                loginWindow.location.href = text;
+            }
             break;
 
         default:
