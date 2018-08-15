@@ -5,6 +5,32 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Update `PULL_REQUEST_TEMPLATE.md` [@corinagum](https://github.com/corinagum) in PR [#1065](https://github.com/Microsoft/BotFramework-WebChat/pull/1065)
+
+## [0.14.1] - 2018-07-31
+### Added
+- Bump [`node-sass`](https://github.com/sass/node-sass) to 4.9.2, by [@corinagum](https://github.com/corinagum) in PR [#1043](https://github.com/Microsoft/BotFramework-WebChat/pull/1043)
+- Add TSLint, by [@adeogunsamuel](https://github.com/adeogunsamuel) in [#1017](https://github.com/Microsoft/BotFramework-WebChat/pull/1017)
+
+### Changed
+- Fix typo in `de-DE`, by [@jKelio](https://github.com/jKelio) in [#1022](https://github.com/Microsoft/BotFramework-WebChat/pull/1022)
+- Fix [#1045](https://github.com/Microsoft/BotFramework-WebChat/issues/1045) IE11 uploading twice, in [#1046](https://github.com/Microsoft/BotFramework-WebChat/pull/1046)
+- Fix [#949](https://github.com/Microsoft/BotFramework-WebChat/issues/949), [#972](https://github.com/Microsoft/BotFramework-WebChat/issues/972), and [#1030](https://github.com/Microsoft/BotFramework-WebChat/issues/1030) to bring [Markdown-It](https://github.com/markdown-it/markdown-it) to Adaptive Cards, in [#1034](https://github.com/Microsoft/BotFramework-WebChat/pull/1034)
+
+## [0.14.0] - 2018-06-26
+### Added
+- Standard and ES5-polyfill builds are now available on CDN
+   - Production build
+      - [https://cdn.botframework.com/botframework-webchat/latest/botchat.js](https://cdn.botframework.com/botframework-webchat/latest/botchat.js)
+      - [https://cdn.botframework.com/botframework-webchat/latest/botchat-es5.js](https://cdn.botframework.com/botframework-webchat/latest/botchat-es5.js)
+   - Development build
+      - [https://cdn.botframework.com/botframework-webchat/master/botchat.js](https://cdn.botframework.com/botframework-webchat/master/botchat.js)
+      - [https://cdn.botframework.com/botframework-webchat/master/botchat-es5.js](https://cdn.botframework.com/botframework-webchat/master/botchat-es5.js)
+
+### Changed
+- Fix [#997](https://github.com/Microsoft/BotFramework-WebChat/issues/997) to postpone size measurement while hidden, in [#1003](https://github.com/Microsoft/BotFramework-WebChat/pull/1003)
+- Fix [#1006](https://github.com/Microsoft/BotFramework-WebChat/issues/1006) links in README.md to reference `web-chat` instead of `webchat`, by [@AlexanderEllis](https://github.com/AlexanderEllis) in [#980](https://github.com/Microsoft/BotFramework-WebChat/pull/980)
 
 ## [0.13.1] - 2018-05-01
 ### Changed
