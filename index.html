@@ -20,7 +20,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>Bot Chat</title>
-        <link href="botchat.css?v=5" rel="stylesheet" />
+        <link href="botchat.css?v=6" rel="stylesheet" />
         
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <style>
@@ -31,19 +31,19 @@
                 overflow: hidden;
             }
         </style>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="uuid-v4.js"></script>
+    <script src="http//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="uuid-v4.js?v=6"></script>
 
     </head>
     <body>
 		<div id="BotChatGoesHere"></div>
 
-        <script src="botchat.js?v=5"></script>
+        <script src="botchat.js?v=6"></script>
         <script type="text/javascript">
             var params = BotChat.queryParams(location.search);
 
             if (params['speechApiKey']) {
-                document.write('<scr'+'ipt src="CognitiveServices.js"></sc'+'ript>');
+                document.write('<scr'+'ipt src="CognitiveServices.js?v=6"></sc'+'ript>');
             }
         </script>
         <script>
