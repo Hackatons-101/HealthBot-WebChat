@@ -284,7 +284,12 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
                 if (this.props.showTimestamp) {
                     sent = this.props.format.strings.timeSent.replace('%1', (new Date(this.props.activity.timestamp)).toLocaleTimeString());
                 }
-                timeLine = <span>{ this.props.activity.from.name || this.props.activity.from.id }{ sent }</span>;
+                let senderTitle: string;
+                if ((this.props.activity as Message) && (this.props.activity as Message).entities) {
+                    const senderTitleEntity: any = (this.props.activity as Message).entities.find(entity => entity.hasOwnProperty('senderTitle'));
+                    senderTitle = senderTitleEntity && senderTitleEntity.senderTitle;
+                }
+                timeLine = <span>{ senderTitle || this.props.activity.from.name || this.props.activity.from.id }{ sent }</span>;
                 break;
         }
 
