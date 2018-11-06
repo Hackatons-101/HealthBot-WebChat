@@ -70,6 +70,10 @@
         &.no-header {
             top: 0;
         }
+
+        &.disabled {
+            bottom: 0;
+        }
     }
 
     .wc-message-group-content {
@@ -85,6 +89,10 @@
         position: absolute;
         right: 0;
         transition: height $actionTransition;
+
+        &.disabled {
+            bottom: 0;
+        }
 
         .wc-hscroll > ul {
             height: $actionsHeight;
@@ -213,6 +221,16 @@
         padding-right: 8px;
     }
 
+    .wc-message-wrapper.clickable {
+        background-color: transparent;
+        border: 1px solid transparent;
+        box-sizing: border-box;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
+        margin-top: 1px;
+    }
+
     .wc-message svg.wc-message-callout {
         height: 22px;
         position: absolute;
@@ -227,10 +245,6 @@
         padding: 8px;
         word-break: break-word;
       }
-
-    .wc-message-content.clickable {
-        cursor: pointer;
-    }
 
     .wc-message-content.selected {
         box-shadow: 0px 1px 1px 0px $c12;

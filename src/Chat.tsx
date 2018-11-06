@@ -16,18 +16,19 @@ import { ActivityOrID, FormatOptions } from './Types';
 
 export interface ChatProps {
     adaptiveCardsHostConfig: any;
-    chatTitle?: boolean | string;
-    user: User;
     bot: User;
     botConnection?: IBotConnection;
+    chatTitle?: boolean | string;
     directLine?: DirectLineOptions;
-    speechOptions?: SpeechOptions;
+    disabled?: boolean;
+    formatOptions?: FormatOptions;
     locale?: string;
+    resize?: 'none' | 'window' | 'detect';
     selectedActivity?: BehaviorSubject<ActivityOrID>;
     sendTyping?: boolean;
     showUploadButton?: boolean;
-    formatOptions?: FormatOptions;
-    resize?: 'none' | 'window' | 'detect';
+    speechOptions?: SpeechOptions;
+    user: User;
 }
 
 import { History } from './History';
@@ -124,12 +125,20 @@ export class Chat extends React.Component<ChatProps, {}> {
     }
 
     private handleCardAction() {
-        // After the user click on any card action, we will "blur" the focus, by setting focus on message pane
-        // This is for after click on card action, the user press "A", it should go into the chat box
-        const historyDOM = findDOMNode(this.historyRef) as HTMLElement;
+        try {
+            // After the user click on any card action, we will "blur" the focus, by setting focus on message pane
+            // This is for after click on card action, the user press "A", it should go into the chat box
+            const historyDOM = findDOMNode(this.historyRef) as HTMLElement;
 
-        if (historyDOM) {
-            historyDOM.focus();
+            if (historyDOM) {
+                historyDOM.focus();
+            }
+        } catch (err) {
+            // In Emulator production build, React.findDOMNode(this.historyRef) will throw an exception saying the
+            // component is unmounted. I verified we did not miss any saveRef calls, so it looks weird.
+            // Since this is an optional feature, I am try-catching this for now. We should find the root cause later.
+            //
+            // Some of my thoughts, React version-compatibility problems.
         }
     }
 
@@ -165,7 +174,10 @@ export class Chat extends React.Component<ChatProps, {}> {
                 key = inputtableKey(evt.key);
             }
 
-            this.shellRef.focus(key);
+            // shellRef is null if Web Chat is disabled
+            if (this.shellRef) {
+                this.shellRef.focus(key);
+            }
         }
     }
 
@@ -280,13 +292,16 @@ export class Chat extends React.Component<ChatProps, {}> {
                                 <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
                             </div>
                     }
-                    <MessagePane>
+                    <MessagePane disabled={ this.props.disabled }>
                         <History
+                            disabled={ this.props.disabled }
                             onCardAction={ this._handleCardAction }
                             ref={ this._saveHistoryRef }
                         />
                     </MessagePane>
-                    <Shell ref={ this._saveShellRef } />
+                    {
+                        !this.props.disabled && <Shell ref={ this._saveShellRef } />
+                    }
                     {
                         this.props.resize === 'detect' &&
                             <ResizeDetector onresize={ this.resizeListener } />
@@ -308,7 +323,6 @@ export const doCardAction = (
     type,
     actionValue
 ) => {
-
     const text = (typeof actionValue === 'string') ? actionValue as string : undefined;
     const value = (typeof actionValue === 'object') ? actionValue as object : undefined;
 
@@ -356,7 +370,10 @@ export const sendPostBack = (botConnection: IBotConnection, text: string, value:
         text,
         value,
         from,
-        locale
+        locale,
+        channelData: {
+            postback: true
+        }
     })
     .subscribe(
         id => konsole.log('success sending postBack', id),

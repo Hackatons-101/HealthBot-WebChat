@@ -642,10 +642,12 @@ var commands_map: CommandValuesMap = {
     "xml": {
         client: function () {
             var spans = document.querySelectorAll('.wc-message-from-bot span.format-plain span');
-            return spans[0].innerHTML.indexOf('# markdown h1 &lt;h1&gt;xml h1&lt;/h1&gt;') != -1 &&
-                spans[1].innerHTML.indexOf('*markdown italic* &lt;i&gt;xml italic&lt;/i&gt;') != 1 &&
-                spans[2].innerHTML.indexOf('**markdown bold** &lt;b&gt;xml bold&lt;/b&gt;') != 1 &&
-                spans[3].innerHTML.indexOf('~~markdown strikethrough~~ &lt;s&gt;xml strikethrough&lt;/s&gt;') != 1;
+            return (
+                spans[0].innerHTML.trim().replace(/\r/, '') === '# markdown h1 &lt;h1&gt;xml h1&lt;/h1&gt;<br>' &&
+                spans[1].innerHTML.trim().replace(/\r/, '') === '*markdown italic* &lt;i&gt;xml italic&lt;/i&gt;<br>' &&
+                spans[2].innerHTML.trim().replace(/\r/, '') === '**markdown bold** &lt;b&gt;xml bold&lt;/b&gt;<br>' &&
+                spans[3].innerHTML.trim().replace(/\r/, '') === '~~markdown strikethrough~~ &lt;s&gt;xml strikethrough&lt;/s&gt;<br>'
+            );
         },
         server: function (res, sendActivity) {
             sendActivity(res, server_content.xml_card);
@@ -796,7 +798,7 @@ var commands_map: CommandValuesMap = {
                 });
         },
         client: function () {
-            var titleElement = [].find.call(document.querySelectorAll('.wc-adaptive-card .ac-container div'), element => element.innerHTML === 'Details about image 1');
+            var titleElement = [].find.call(document.querySelectorAll('.wc-adaptive-card .ac-container p'), element => element.innerHTML === 'Details about image 1');
 
             return titleElement && window.getComputedStyle(titleElement)['font-family'] === 'serif';
         }
@@ -827,6 +829,73 @@ var commands_map: CommandValuesMap = {
         urlAppend: { hidden: 1 },
         client: function () {
             return !window['WebChatTest'].getLastError();
+        }
+    },
+    'role=user': {
+        server: function (conversationId, sendActivity) {
+            sendActivity(
+                conversationId,
+                {
+                    type: 'message',
+                    from: { id: 'bot', role: 'user' },
+                    timestamp: new Date().toUTCString(),
+                    channelId: 'webchat',
+                    textFormat: 'plain',
+                    text: 'Appears to be sent by the user'
+                }
+            );
+        },
+        client: function () {
+            return [].some.call(document.querySelectorAll('.wc-message-from-me'), ({ innerText }) => ~innerText.indexOf('Appears to be sent by the user'));
+        }
+    },
+    'disable interactivity': {
+        server: async function (conversationId, sendActivity) {
+            sendActivity(conversationId, await server_content.interactive_card());
+        },
+        do: function (nightmare) {
+            nightmare.evaluate(() => {
+                window['WebChatTest'].setDisabled(true);
+            });
+        },
+        client: async function () {
+            let result = true;
+            const heroCard = document.querySelector('.wc-adaptive-card');
+            const inputs = heroCard.querySelectorAll('button, input, textarea');
+
+            result = result && [].every.call(inputs, button => button.disabled);
+            result = result && !document.querySelector('.wc-console');
+
+            window['WebChatTest'].setDisabled(false);
+
+            return result;
+        }
+    },
+    'selectable by click': {
+        urlAppend: { selectable: true },
+        do: function (nightmare) {
+            nightmare.click('.wc-message-wrapper');
+        },
+        client: async function () {
+            return (document.querySelector('.wc-message-content.selected') as HTMLElement).innerText.trim() === 'Welcome to MockBot!';
+        }
+    },
+    'selectable by tab using spacebar': {
+        urlAppend: { selectable: true },
+        do: function (nightmare) {
+            nightmare.type('.wc-message-groups', '\u0009 ');
+        },
+        client: async function () {
+            return (document.querySelector('.wc-message-content.selected') as HTMLElement).innerText.trim() === 'Welcome to MockBot!';
+        }
+    },
+    'selectable by tab using enter key': {
+        urlAppend: { selectable: true },
+        do: function (nightmare) {
+            nightmare.type('.wc-message-groups', '\u0009\u000D');
+        },
+        client: async function () {
+            return (document.querySelector('.wc-message-content.selected') as HTMLElement).innerText.trim() === 'Welcome to MockBot!';
         }
     }
     /*

@@ -7,6 +7,7 @@
     "build": "concurrently \"tsc -p ./mock_dl\" \"tsc -p .\" \"tsc -p ./mock_speech\"",
     "build:watch": "concurrently \"tsc -p ./mock_dl -w\" \"tsc -p . -w\" \"tsc -p ./mock_speech -w\"",
     "start": "node mock_dl",
+    "start:watch": "npx node-dev mock_dl",
     "test": "concurrently \"npm start\" \"mocha .\""
   },
   "repository": {
@@ -25,7 +26,7 @@
     "express": "^4.16.2",
     "lodash": "^4.17.10",
     "multer": "^1.3.0",
-    "nightmare": "^3.0.0",
+    "nightmare": "^3.0.1",
     "nightmare-upload": "^0.1.1",
     "nightmare-window-manager": "^0.2.2",
     "typescript": "2.3",

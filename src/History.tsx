@@ -9,10 +9,11 @@ import { ChatState, FormatState, SizeState } from './Store';
 import { sendMessage } from './Store';
 
 export interface HistoryProps {
-    format: FormatState;
-    size: SizeState;
     activities: Activity[];
+    disabled: boolean;
+    format: FormatState;
     hasActivityWithSuggestedActions: Activity;
+    size: SizeState;
 
     setMeasurements: (carouselMargin: number) => void;
     onClickRetry: (activity: Activity) => void;
@@ -153,18 +154,23 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
                             } }
                         >
                             <ActivityView
-                                format={ this.props.format }
-                                size={ this.props.size }
                                 activity={ activity }
+                                disabled={ this.props.disabled }
+                                format={ this.props.format }
                                 onCardAction={ (type: CardActionTypes, value: string | object) => this.doCardAction(type, value) }
                                 onImageLoad={ () => this.autoscroll() }
+                                size={ this.props.size }
                             />
                         </WrappedActivity>
                 );
             }
         }
 
-        const groupsClassName = classList('wc-message-groups', !this.props.format.chatTitle && 'no-header');
+        const groupsClassName = classList(
+            'wc-message-groups',
+            !this.props.format.chatTitle && 'no-header',
+            this.props.disabled && 'disabled'
+        );
 
         return (
             <div
@@ -184,37 +190,39 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
 export const History = connect(
     (state: ChatState) => ({
         // passed down to HistoryView
-        format: state.format,
-        size: state.size,
         activities: state.history.activities,
+        format: state.format,
         hasActivityWithSuggestedActions: !!activityWithSuggestedActions(state.history.activities),
+        size: state.size,
         // only used to create helper functions below
+        botConnection: state.connection.botConnection,
         connectionSelectedActivity: state.connection.selectedActivity,
         selectedActivity: state.history.selectedActivity,
-        botConnection: state.connection.botConnection,
         user: state.connection.user
     }), {
-        setMeasurements: (carouselMargin: number) => ({ type: 'Set_Measurements', carouselMargin }),
-        onClickRetry: (activity: Activity) => ({ type: 'Send_Message_Retry', clientActivityId: activity.channelData.clientActivityId }),
         onClickCardAction: () => ({ type: 'Card_Action_Clicked'}),
+        onClickRetry: (activity: Activity) => ({ type: 'Send_Message_Retry', clientActivityId: activity.channelData.clientActivityId }),
+        setMeasurements: (carouselMargin: number) => ({ type: 'Set_Measurements', carouselMargin }),
         // only used to create helper functions below
         sendMessage
     }, (stateProps: any, dispatchProps: any, ownProps: any): HistoryProps => ({
         // from stateProps
-        format: stateProps.format,
-        size: stateProps.size,
         activities: stateProps.activities,
+        format: stateProps.format,
         hasActivityWithSuggestedActions: stateProps.hasActivityWithSuggestedActions,
+        size: stateProps.size,
         // from dispatchProps
-        setMeasurements: dispatchProps.setMeasurements,
-        onClickRetry: dispatchProps.onClickRetry,
         onClickCardAction: dispatchProps.onClickCardAction,
+        onClickRetry: dispatchProps.onClickRetry,
+        setMeasurements: dispatchProps.setMeasurements,
+        // from ownProps
+        disabled: ownProps.disabled,
         // helper functions
         doCardAction: doCardAction(stateProps.botConnection, stateProps.user, stateProps.format.locale, dispatchProps.sendMessage),
-        isFromMe: (activity: Activity) => activity.from.id === stateProps.user.id,
+        isFromMe: (activity: Activity) => activity.from.role === 'user' || activity.from.id === stateProps.user.id,
         isSelected: (activity: Activity) => activity === stateProps.selectedActivity,
-        onClickActivity: (activity: Activity) => stateProps.connectionSelectedActivity && (() => stateProps.connectionSelectedActivity.next({ activity })),
-        onCardAction: ownProps.onCardAction
+        onCardAction: ownProps.onCardAction,
+        onClickActivity: (activity: Activity) => stateProps.connectionSelectedActivity && (() => stateProps.connectionSelectedActivity.next({ activity }))
     }), {
         withRef: true
     }
@@ -247,12 +255,12 @@ const suitableInterval = (current: Activity, next: Activity) =>
 
 export interface WrappedActivityProps {
     activity: Activity;
-    showTimestamp: boolean;
-    selected: boolean;
-    fromMe: boolean;
     format: FormatState;
-    onClickActivity: React.MouseEventHandler<HTMLDivElement>;
+    fromMe: boolean;
+    onClickActivity: (event: React.KeyboardEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>) => void;
     onClickRetry: React.MouseEventHandler<HTMLAnchorElement>;
+    selected: boolean;
+    showTimestamp: boolean;
 }
 
 export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
@@ -260,6 +268,14 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
 
     constructor(props: WrappedActivityProps) {
         super(props);
+
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+    }
+
+    handleKeyPress(event: React.KeyboardEvent<HTMLDivElement>) {
+        if (event.keyCode === 13 || event.keyCode === 32) {
+            this.props.onClickActivity(event);
+        }
     }
 
     render() {
@@ -294,6 +310,7 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
         }
 
         const who = this.props.fromMe ? 'me' : 'bot';
+        const selectable = this.props.onClickActivity;
 
         const wrapperClassName = classList(
             'wc-message-wrapper',
@@ -305,20 +322,26 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
             'wc-message-content',
             this.props.selected && 'selected'
         );
-
         return (
-            <div data-activity-id={ this.props.activity.id } className={ wrapperClassName } onClick={ this.props.onClickActivity }>
-                <div className={ 'wc-message wc-message-from-' + who } ref={ div => this.messageDiv = div }>
-                    <div className={ contentClassName }>
-                        <svg className="wc-message-callout">
-                            <path className="point-left" d="m0,6 l6 6 v-12 z" />
-                            <path className="point-right" d="m6,6 l-6 6 v-12 z" />
-                        </svg>
-                        { this.props.children }
+                <div
+                    className={ wrapperClassName }
+                    data-activity-id={ this.props.activity.id }
+                    onClick={ this.props.onClickActivity }
+                    onKeyUp={ this.handleKeyPress }
+                    role={ selectable ? 'button' : undefined }
+                    tabIndex={ selectable ? 0 : undefined }
+                >
+                    <div className={ 'wc-message wc-message-from-' + who } ref={ div => this.messageDiv = div }>
+                        <div className={ contentClassName }>
+                            <svg className="wc-message-callout">
+                                <path className="point-left" d="m0,6 l6 6 v-12 z" />
+                                <path className="point-right" d="m6,6 l-6 6 v-12 z" />
+                            </svg>
+                                { this.props.children }
+                        </div>
                     </div>
+                    <div className={ 'wc-message-from wc-message-from-' + who }>{ timeLine }</div>
                 </div>
-                <div className={ 'wc-message-from wc-message-from-' + who }>{ timeLine }</div>
-            </div>
         );
     }
 }

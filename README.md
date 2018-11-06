@@ -3,6 +3,10 @@
 **Note: In order you use this Web Chat with the Health Bot secvice, you will need to obtain your Web Chat secret from the Health Bot Team. Please refer to [Microsoft Health Bot](https://www.microsoft.com/en-us/research/project/health-bot/) for a private preview and details.**
 
 
+***Web Chat v3 is now deprecated** For latest version, please visit the [`master`](https://github.com/Microsoft/BotFramework-WebChat/tree/master) branch for details.*
+
+## About
+
 Embeddable web chat control for the [Microsoft Bot Framework](http://www.botframework.com) using the [DirectLine](https://docs.botframework.com/en-us/restapi/directline3/) API.
 
 Used by the Bot Framework developer portal, [Emulator](https://github.com/Microsoft/BotFramework-Emulator), Web Chat channel, and [Azure Bot Service](https://azure.microsoft.com/en-us/services/bot-service/)

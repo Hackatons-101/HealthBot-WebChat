@@ -36,16 +36,10 @@
     <link href="botchat-fullwindow.css" rel="stylesheet" />
 
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
-    <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
-    <!--
-      Upgrade to React@16
 
-      If version mismatch (React inside HTML and BotChat.js), auto-focus will fail to work because ReactDOM.findDOMNode() will return null on mismatch version
-
-    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    -->
+    <!-- React/ReactDOM version specified here should sync with devDependencies-->
+    <script src="https://unpkg.com/react@16.5.2/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.5.2/umd/react-dom.development.js"></script>
   </head>
   <body>
     <div id="BotChatGoesHere"></div>
@@ -65,6 +59,23 @@
         } catch (err) {}
       }
 
+      function createObserver() {
+        let subscribers = [];
+
+        return {
+          next: value => {
+            subscribers.forEach(subscriber => subscriber(value));
+          },
+          subscribe: fn => {
+            subscribers.push(fn);
+
+            return () => {
+              subscribers = subscribers.filter(subscriber => subscriber !== fn)
+            };
+          }
+        };
+      }
+
       class App extends React.Component {
         constructor(props, context) {
           super(props, context);
@@ -82,10 +93,12 @@
               token: params['t'],
               webSocket: false
             },
+            disabled: 'disabled' in params,
             formatOptions: tryParseJSON(params.formatOptions),
             hidden: 'hidden' in params,
             locale: params['locale'],
             resize: 'window',
+            selectedActivity: params['selectable'] === 'true' ? createObserver() : null,
             sendTyping: false, //set to true to send 'typing' activities to bot (and other users) when user is typing
             showUploadButton: params['showUploadButton'] !== 'false',
             speechOptions: params['speech'] === 'enabled/ui' ?
@@ -138,6 +151,7 @@
               }));
             },
             setChatTitle: chatTitle => this.setState(() => ({ chatTitle })),
+            setDisabled: disabled => this.setState(() => ({ disabled })),
             setHidden: hidden => this.setState(() => ({ hidden })),
             toggleUploadButton: show => {
               this.setState(state => ({
@@ -158,9 +172,11 @@
                 bot={ this.state.bot }
                 chatTitle={ this.state.chatTitle }
                 directLine={ this.state.directLine }
+                disabled={ this.state.disabled }
                 formatOptions={ this.state.formatOptions }
                 locale={ this.state.locale }
                 resize={ this.state.resize }
+                selectedActivity={ this.state.selectedActivity }
                 sendTyping={ this.state.sendTyping }
                 showUploadButton={ this.state.showUploadButton }
                 speechOptions={ this.state.speechOptions }
